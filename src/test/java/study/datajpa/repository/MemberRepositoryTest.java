@@ -1,9 +1,14 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -21,6 +26,8 @@ import static org.assertj.core.api.Assertions.*;
 class MemberRepositoryTest {
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember(){
@@ -115,5 +122,43 @@ class MemberRepositoryTest {
 
 
         List<Member> aaa = memberRepository.findListByUsername("memberA");
+    }
+
+    @Test
+    public void paging(){
+        memberRepository.save(new Member("member1"));
+        memberRepository.save(new Member("member2"));
+        memberRepository.save(new Member("member3"));
+        memberRepository.save(new Member("member4"));
+
+        int age = 10;
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        //반환 타입을 받으면 Page에서 카운트까지 보냄
+        Page<Member> page = memberRepository.findByAge(age, pageRequest);
+
+        List<Member> countent = page.getContent();
+        long a = page.getTotalElements();
+
+        assertThat(countent.size()).isEqualTo(3);
+        assertThat(page.getTotalElements()).isEqualTo(5);
+        assertThat(page.getNumber()).isEqualTo(0);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+    }
+
+    @Test
+    public void bulkUpdate(){
+        memberRepository.save(new Member("member1"));
+        memberRepository.save(new Member("member2"));
+        memberRepository.save(new Member("member3"));
+        memberRepository.save(new Member("member4"));
+        memberRepository.save(new Member("member5"));
+
+        int resultCount = memberRepository.bulkAgePlus(20);
+
+        /*em.clear();*/
+        assertThat(resultCount).isEqualTo(3);
     }
 }
