@@ -161,4 +161,43 @@ class MemberRepositoryTest {
         /*em.clear();*/
         assertThat(resultCount).isEqualTo(3);
     }
+
+
+    @Test
+    public void findMemberLazy(){
+        //given
+        //member1 -> teamA
+        //member2 -> teamB
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamB);
+        teamRepository.save(teamA);
+        Member member1 = new Member("memberA", 10, teamA);
+        Member member2 = new Member("memberB", 20, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        //List<Member> members = memberRepository.findAll();
+        List<Member> members = memberRepository.findMemberFetchJoin();
+
+        for(Member member : members){
+            System.out.println(member + "==>");
+        }
+    }
+
+    @Test
+    public void queryHint(){
+        Member member1 = new Member("member1");
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        Member findMember = memberRepository.findById(member1.getId()).get();
+
+        em.flush();
+    }
 }
