@@ -29,6 +29,8 @@ class MemberRepositoryTest {
     @PersistenceContext
     EntityManager em;
 
+
+
     @Test
     public void testMember(){
         Member member = new Member("memberA");
@@ -199,5 +201,10 @@ class MemberRepositoryTest {
         Member findMember = memberRepository.findById(member1.getId()).get();
 
         em.flush();
+    }
+
+    @Test
+    public void callCustom(){
+        List<Member> result = memberRepository.findMemberCustrom();
     }
 }
