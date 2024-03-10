@@ -54,5 +54,9 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     List<Member> findEntityGraphByUsername(@Param("username") String username);
 
-    
+    List<UsernameOnly> findProjectionsUsername(@Param("username") String username);
+
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
 }
